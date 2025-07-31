@@ -125,35 +125,6 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-content">
-            <div className="footer-section">
-              <h3>📚 LearnHub</h3>
-              <p>Empowering education through video content</p>
-            </div>
-            <div className="footer-section">
-              <h4>Platform</h4>
-              <ul>
-                <li><Link to="/login">Upload Lessons</Link></li>
-                <li><a href="#features">Features</a></li>
-              </ul>
-            </div>
-            <div className="footer-section">
-              <h4>Support</h4>
-              <ul>
-                <li><a href="#help">Help Center</a></li>
-                <li><a href="#contact">Contact Us</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <p>&copy; 2025 LearnHub. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
