@@ -6,6 +6,7 @@ import AuthForm from "./components/Auth/AuthForm";
 import LandingPage from "./pages/LandingPage";
 import TutorDashboard from "./pages/TutorDashboard";
 import './App.css';
+import UploadLesson from "./pages/UploadLesson"; 
 
 // Simplified UploadPage component (removed from main App component)
 function UploadPage() {
@@ -353,6 +354,7 @@ function App() {
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/upload" element={<UploadLesson />} />
         
         {/* Login route */}
         <Route

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Search, Filter, Eye, Edit3, Trash2, Plus, BookOpen, Video, FileText, HelpCircle, Users, TrendingUp, Calendar, Music, UploadCloud, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import './TutorDashboard.css'; 
-
 const TutorDashboard = ({ onLogout }) => {
+  const navigate = useNavigate(); // Initialize navigate
+
   // Sample data for uploaded content
   const [contentList, setContentList] = useState([
     {
@@ -77,17 +79,6 @@ const TutorDashboard = ({ onLogout }) => {
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
 
-  // State for upload modal
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [uploadForm, setUploadForm] = useState({
-    title: '',
-    description: '',
-    category: '',
-    contentType: 'text',
-    file: null,
-  });
-  const [uploadMessage, setUploadMessage] = useState('');
-
   // Filter content based on search and filters
   const filteredContent = contentList.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -124,50 +115,6 @@ const TutorDashboard = ({ onLogout }) => {
   const totalCompletions = contentList.reduce((sum, item) => sum + item.completions, 0);
   const avgRating = contentList.length > 0 ? (contentList.reduce((sum, item) => sum + item.rating, 0) / contentList.length).toFixed(1) : 'N/A';
 
-  // Handlers for upload form
-  const handleUploadInputChange = (e) => {
-    const { name, value } = e.target;
-    setUploadForm({ ...uploadForm, [name]: value });
-  };
-
-  const handleFileChange = (e) => {
-    setUploadForm({ ...uploadForm, file: e.target.files[0] });
-  };
-
-  const handleUploadSubmit = async (e) => {
-    e.preventDefault();
-    setUploadMessage('');
-
-    if (!uploadForm.title || !uploadForm.description || !uploadForm.category || !uploadForm.file) {
-      setUploadMessage('Please fill all fields and select a file.');
-      return;
-    }
-
-    const newContent = {
-      id: contentList.length + 1,
-      title: uploadForm.title,
-      type: uploadForm.contentType,
-      category: uploadForm.category,
-      duration: "N/A",
-      views: 0,
-      completions: 0,
-      rating: 0,
-      status: "draft",
-      uploadDate: new Date().toISOString().slice(0, 10),
-      thumbnail: `https://via.placeholder.com/80x60/${
-        uploadForm.contentType === 'video' ? '4f46e5' : 
-        uploadForm.contentType === 'text' ? 'dc2626' : 
-        uploadForm.contentType === 'audio' ? 'a855f7' : '1e40af'
-      }/ffffff?text=${uploadForm.contentType.charAt(0).toUpperCase() + uploadForm.contentType.slice(1)}`
-    };
-
-    // Add to local state for demo
-    setContentList(prev => [...prev, newContent]);
-    setUploadMessage('Content uploaded successfully (demo)!');
-    setIsUploadModalOpen(false);
-    setUploadForm({ title: '', description: '', category: '', contentType: 'text', file: null });
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -175,13 +122,13 @@ const TutorDashboard = ({ onLogout }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Tutor Dashboard</h1>
+              <h1 className="text-4xl font-bold text-gray-900">Tutor Dashboard</h1>
               <p className="text-gray-600">Manage your content and track performance</p>
             </div>
             <div className="flex items-center gap-4">
               <button 
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-                onClick={() => setIsUploadModalOpen(true)}
+                onClick={() => navigate('/upload')} // Updated onClick handler
               >
                 <Plus className="w-4 h-4" />
                 Upload Content
@@ -358,126 +305,6 @@ const TutorDashboard = ({ onLogout }) => {
           </div>
         </div>
       </div>
-
-      {/* Upload Content Modal */}
-      {isUploadModalOpen && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-            <h3 className="text-2xl font-bold mb-6 text-gray-900">Upload New Content</h3>
-            <form onSubmit={handleUploadSubmit}>
-              <div className="mb-4">
-                <label htmlFor="uploadTitle" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                <input
-                  type="text"
-                  id="uploadTitle"
-                  name="title"
-                  value={uploadForm.title}
-                  onChange={handleUploadInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="e.g., Mastering React Hooks"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="uploadDescription" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea
-                  id="uploadDescription"
-                  name="description"
-                  value={uploadForm.description}
-                  onChange={handleUploadInputChange}
-                  rows="3"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Provide a brief description of your content."
-                  required
-                ></textarea>
-              </div>
-              <div className="mb-4">
-                <label htmlFor="uploadCategory" className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <select
-                  id="uploadCategory"
-                  name="category"
-                  value={uploadForm.category}
-                  onChange={handleUploadInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  required
-                >
-                  <option value="">Select a category</option>
-                  <option value="Programming">Programming</option>
-                  <option value="Design">Design</option>
-                  <option value="Soft Skills">Soft Skills</option>
-                  <option value="Mathematics">Mathematics</option>
-                  <option value="Science">Science</option>
-                </select>
-              </div>
-              <div className="mb-4">
-                <label htmlFor="contentType" className="block text-sm font-medium text-gray-700 mb-1">Content Type</label>
-                <select
-                  id="contentType"
-                  name="contentType"
-                  value={uploadForm.contentType}
-                  onChange={handleUploadInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                  required
-                >
-                  <option value="text">Text</option>
-                  <option value="video">Video</option>
-                  <option value="audio">Audio</option>
-                </select>
-              </div>
-              <div className="mb-6">
-                <label htmlFor="uploadFile" className="block text-sm font-medium text-gray-700 mb-1">Upload File</label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                  <div className="space-y-1 text-center">
-                    <UploadCloud className="mx-auto h-12 w-12 text-gray-400" />
-                    <div className="flex text-sm text-gray-600">
-                      <label
-                        htmlFor="file-upload"
-                        className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
-                      >
-                        <span>Upload a file</span>
-                        <input
-                          id="file-upload"
-                          name="file-upload"
-                          type="file"
-                          className="sr-only"
-                          onChange={handleFileChange}
-                          accept={uploadForm.contentType === 'video' ? 'video/*' : 
-                                  uploadForm.contentType === 'audio' ? 'audio/*' : 
-                                  'text/plain, .pdf, .docx'}
-                          required
-                        />
-                      </label>
-                      <p className="pl-1">or drag and drop</p>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      {uploadForm.contentType === 'video' && 'MP4, MOV, AVI, etc.'}
-                      {uploadForm.contentType === 'audio' && 'MP3, WAV, OGG, etc.'}
-                      {uploadForm.contentType === 'text' && 'TXT, PDF, DOCX, etc.'}
-                      {uploadForm.file && `: ${uploadForm.file.name}`}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              {uploadMessage && <p className="text-center text-sm mb-4" style={{ color: uploadMessage.includes('successfully') ? 'green' : 'red' }}>{uploadMessage}</p>}
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsUploadModalOpen(false)}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Upload
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
