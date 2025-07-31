@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
-from routes import lessons, quiz, text_lessons,auth
+from routes import lessons, quiz, text_lessons, auth, lesson_management  # Add lesson_management
 
 app = FastAPI()
 
@@ -14,8 +14,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(lessons.router, prefix="/api")  
-app.include_router(auth.router,prefix="/api")
+app.include_router(auth.router, prefix="/api")
+app.include_router(lessons.router, prefix="/api")  # Your existing video upload routes
+app.include_router(lesson_management.router, prefix="/api")  # Add this new line
 app.include_router(quiz.router, prefix="/api")     
 app.include_router(text_lessons.router, prefix="/api")  
 
