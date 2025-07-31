@@ -22,6 +22,11 @@ const AuthForm = ({ onAuthSuccess }) => {
   };
 
   const switchMode = () => {
+    // Only allow switching to registration mode for Learners
+    if (userType === 'Tutor' && !isLogin) {
+      return; // Prevent tutors from accessing registration
+    }
+    
     setIsLogin((prevIsLogin) => !prevIsLogin);
     setMessage('');
     setFormData({
@@ -32,10 +37,32 @@ const AuthForm = ({ onAuthSuccess }) => {
     });
   };
 
+  const handleUserTypeChange = (newUserType) => {
+    setUserType(newUserType);
+    // If switching to Tutor, force login mode
+    if (newUserType === 'Tutor') {
+      setIsLogin(true);
+      setMessage('');
+      setFormData({
+        name: '',
+        username: '',
+        email: '',
+        password: '',
+      });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
     setIsLoading(true);
+
+    // Prevent tutors from registering
+    if (!isLogin && userType === 'Tutor') {
+      setMessage('Tutors can only log in. Registration is not available for tutors.');
+      setIsLoading(false);
+      return;
+    }
 
     const apiUrl = 'http://127.0.0.1:8000/api/auth';
 
@@ -51,6 +78,13 @@ const AuthForm = ({ onAuthSuccess }) => {
         };
         endpoint = `${apiUrl}/login`;
       } else {
+        // Only allow Learner registration
+        if (userType !== 'Learner') {
+          setMessage('Only students can create new accounts.');
+          setIsLoading(false);
+          return;
+        }
+        
         dataToSend = {
           name: formData.name,
           username: formData.username,
@@ -94,7 +128,7 @@ const AuthForm = ({ onAuthSuccess }) => {
 
           setMessage('Login successful! Redirecting...');
         } else if (!isLogin) {
-          // Registration successful
+          // Registration successful (only for Learners)
           setMessage(data.message || 'Registration successful! You can now log in.');
           setFormData({
             name: '',
@@ -125,20 +159,21 @@ const AuthForm = ({ onAuthSuccess }) => {
           <button
             type="button"
             className={userType === 'Learner' ? 'active' : ''}
-            onClick={() => setUserType('Learner')}
+            onClick={() => handleUserTypeChange('Learner')}
           >
-            Learner
+            Student
           </button>
           <button
             type="button"
             className={userType === 'Tutor' ? 'active' : ''}
-            onClick={() => setUserType('Tutor')}
+            onClick={() => handleUserTypeChange('Tutor')}
           >
             Tutor
           </button>
         </div>
 
-        {!isLogin && (
+        {/* Show registration fields only for Learners and when not in login mode */}
+        {!isLogin && userType === 'Learner' && (
           <>
             <div className="form-group">
               <label htmlFor="name">Name</label>
@@ -199,9 +234,32 @@ const AuthForm = ({ onAuthSuccess }) => {
           {isLoading ? (isLogin ? 'Logging in...' : 'Registering...') : (isLogin ? 'Login' : 'Create Account')}
         </button>
 
-        <button type="button" onClick={switchMode} className="switch-btn" disabled={isLoading}>
-          {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
-        </button>
+        {/* Only show the switch button for Learners or when in login mode */}
+        {(userType === 'Learner' || isLogin) && (
+          <button 
+            type="button" 
+            onClick={switchMode} 
+            className="switch-btn" 
+            disabled={isLoading || (userType === 'Tutor' && !isLogin)}
+            style={{
+              display: userType === 'Tutor' && !isLogin ? 'none' : 'block'
+            }}
+          >
+            {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
+          </button>
+        )}
+
+        {/* Show info message for tutors */}
+        {userType === 'Tutor' && (
+          <p className="info-message" style={{ 
+            fontSize: '0.9em', 
+            color: '#666', 
+            textAlign: 'center', 
+            marginTop: '10px' 
+          }}>
+            Tutors can only log in. Contact an administrator for account creation.
+          </p>
+        )}
       </form>
     </div>
   );

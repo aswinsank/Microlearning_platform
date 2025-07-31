@@ -1,0 +1,159 @@
+/* Reset + Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  background: linear-gradient(to right, #e0eafc, #cfdef3);
+  color: #333;
+}
+
+/* Container */
+.student-page {
+  max-width: 800px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: #ffffffee;
+  border-radius: 1rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Title */
+.student-page h2 {
+  font-size: 2.4rem;
+  color: #2b2d42;
+  margin: 0;
+}
+
+/* Search Button */
+.search-button {
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #5e72e4;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: #4a5ccb;
+}
+
+.search-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Message Section */
+.message {
+  text-align: center;
+  padding: 2rem 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #444;
+}
+
+.message.error {
+  color: #d62828;
+}
+
+/* Gamification Container */
+.gamification-container {
+  margin-top: 2rem;
+}
+
+/* Leaderboard Styles */
+.leaderboard {
+  background: #f9fafb;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.leaderboard h3 {
+  font-size: 1.5rem;
+  color: #2b2d42;
+  margin-bottom: 1.5rem;
+  border-bottom: 3px solid #5e72e4;
+  padding-bottom: 0.75rem;
+  text-align: center;
+}
+
+.leaderboard ol {
+  list-style: none;
+  padding-left: 0;
+}
+
+.leaderboard li {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  transition: background-color 0.2s ease;
+}
+
+.leaderboard li:hover {
+  background-color: #eef2ff;
+}
+
+.leaderboard .rank {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #5e72e4;
+  min-width: 30px;
+  margin-right: 1rem;
+}
+
+.leaderboard .name {
+  font-weight: 500;
+  flex-grow: 1;
+  color: #1f2937;
+}
+
+.leaderboard .points {
+  font-weight: bold;
+  color: #31c48d;
+}
+
+/* Empty state styling */
+.leaderboard p {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  padding: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .student-page {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .leaderboard {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .student-page {
+    padding: 1rem;
+    margin: 1rem;
+  }
+  
+  .student-page h2 {
+    font-size: 2rem;
+  }
+  
+  .leaderboard h3 {
+    font-size: 1.3rem;
+  }
+}

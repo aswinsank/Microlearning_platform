@@ -9,7 +9,7 @@ import StudentPage from "./pages/StudentPage";
 import './App.css'; 
 
 // Simplified UploadPage component (removed from main App component)
-function UploadPage() {
+function UploadPage({ onLogout }) {
   const [title, setTitle] = useState("");
   const [about, setAbout] = useState("");
   const [category, setCategory] = useState("");
@@ -120,8 +120,17 @@ function UploadPage() {
 
   return (
     <div className="upload-page">
-      <div className="upload-card">
+      <div className="upload-header">
         <h2>📤 Upload New Lesson</h2>
+        <button 
+          onClick={onLogout}
+          className="logout-btn"
+        >
+          Logout
+        </button>
+      </div>
+      
+      <div className="upload-card">
         <form onSubmit={handleSubmit}>
           <label>Lesson Title</label>
           <input
@@ -429,7 +438,7 @@ function App() {
           path="/upload"
           element={
             isAuthenticated && userRole === 'Tutor' ? (
-              <UploadPage />
+              <UploadPage onLogout={handleLogout} />
             ) : (
               <Navigate to="/login" replace />
             )

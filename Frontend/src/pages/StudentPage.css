@@ -29,7 +29,7 @@ body {
   color: #2b2d42;
 }
 
-/* --- Gamification & Leaderboard --- */
+/* --- Gamification & Leaderboard Section --- */
 .gamification-container {
   display: grid;
   grid-template-columns: 1fr 2fr;
@@ -97,7 +97,6 @@ body {
   color: #31c48d;
 }
 
-
 /* Filters */
 .filters {
   display: flex;
@@ -127,7 +126,7 @@ body {
   box-shadow: 0 0 5px rgba(94, 114, 228, 0.4);
 }
 
-.filters .search-button {
+.filters .search-button, .search-button {
   padding: 0.7rem 1.5rem;
   border: none;
   border-radius: 8px;
@@ -138,8 +137,13 @@ body {
   transition: background-color 0.3s ease;
 }
 
-.filters .search-button:hover {
+.filters .search-button:hover, .search-button:hover {
   background-color: #4a5ccb;
+}
+
+.search-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
 }
 
 /* Grid of Lessons */
@@ -184,15 +188,24 @@ body {
   margin-bottom: 1rem;
 }
 
+.lesson-card .lesson-date {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
 /* Media Preview */
 .lesson-card video,
 .lesson-card iframe {
   width: 100%;
-  margin-top: auto; /* Pushes content to the bottom */
+  margin-top: auto;
   border-radius: 0.75rem;
   aspect-ratio: 16 / 9;
   border: 1px solid #ddd;
   background: #000;
+}
+
+.video-container {
+  margin-top: auto;
 }
 
 .lesson-card a {
