@@ -1,10 +1,10 @@
 // App.jsx
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import axios from "axios";
 import AuthForm from "./components/Auth/AuthForm";
 import LandingPage from "./pages/LandingPage";
 import TutorDashboard from "./pages/TutorDashboard";
+import UploadPage from "./pages/Uploadpage";
 import './App.css';
 import UploadLesson from "./pages/UploadLesson"; 
 import StudentPage from "./pages/StudentPage";
@@ -296,6 +296,7 @@ function UploadPage() {
     </div>
   );
 }
+=======
 
 // Simple LearnerDashboard placeholder
 function LearnerDashboard({ onLogout }) {
@@ -355,7 +356,6 @@ function App() {
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/upload" element={<UploadLesson />} />
         
         {/* Login route */}
         <Route
