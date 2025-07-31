@@ -1,0 +1,4 @@
+# Don't commit environment variables or Python caches
+.env
+__pycache__/
+*.pyc
