@@ -9,7 +9,6 @@ import './App.css';
 import Uploadpage from "./pages/Uploadpage";
 import StudentPage from "./pages/StudentPage";
 
-
 function LearnerDashboard({ onLogout }) {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -36,6 +35,7 @@ function LearnerDashboard({ onLogout }) {
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [loading, setLoading] = useState(true); // Added missing loading state
 
   // Check authentication status
   const checkAuthStatus = () => {
@@ -55,6 +55,7 @@ function App() {
         console.error("Invalid stored user data:", error);
         localStorage.removeItem('user');
         localStorage.removeItem('userType');
+        localStorage.removeItem('access_token'); // Also clear token
         return false;
       }
     }
@@ -62,6 +63,7 @@ function App() {
   };
 
   useEffect(() => {
+    console.log('App useEffect - checking auth status...');
     checkAuthStatus();
     setLoading(false);
   }, []);
@@ -86,14 +88,15 @@ function App() {
     setUserRole(null);
     localStorage.removeItem('user');
     localStorage.removeItem('userType');
+    localStorage.removeItem('access_token');
   };
 
   // Show loading spinner while checking authentication
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
@@ -152,7 +155,7 @@ function App() {
           path="/upload"
           element={
             isAuthenticated && userRole === 'Tutor' ? (
-              <Uploadpage />
+              <Uploadpage onLogout={handleLogout} />
             ) : (
               <Navigate to="/login" replace />
             )
