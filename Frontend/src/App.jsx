@@ -1,8 +1,11 @@
 import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import axios from "axios";
+import LoginPage from "./pages/LoginPage";
 import "./App.css";
 
-function App() {
+// Extract the upload component into a separate component
+function UploadPage() {
   const [title, setTitle] = useState("");
   const [about, setAbout] = useState("");
   const [category, setCategory] = useState("");
@@ -171,6 +174,18 @@ function App() {
         )}
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/upload" element={<UploadPage />} />
+        <Route path="/" element={<Navigate to="/upload" replace />} />
+      </Routes>
+    </Router>
   );
 }
 
