@@ -5,8 +5,33 @@ from datetime import datetime
 import os
 import shutil
 from db import lessons_collection
+from fastapi import Query
 
 router = APIRouter()
+
+@router.get("/lessons")
+async def get_lessons(
+    tutor_id: Optional[str] = Query(None),
+    category: Optional[str] = Query(None),
+    format: Optional[str] = Query(None),
+):
+    query = {}
+    if tutor_id:
+        query["tutor_id"] = tutor_id
+    if category:
+        query["category"] = category
+    if format:
+        query["format"] = format
+
+    print("Mongo query:", query)  # 👈 helpful debug
+    lessons = list(lessons_collection.find(query))
+
+    # Optional: convert ObjectId to str
+    for lesson in lessons:
+        lesson["_id"] = str(lesson["_id"])
+
+    return {"results": lessons}
+
 
 UPLOAD_FOLDER = "uploaded_videos"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)

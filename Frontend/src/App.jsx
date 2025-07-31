@@ -7,6 +7,7 @@ import LandingPage from "./pages/LandingPage";
 import TutorDashboard from "./pages/TutorDashboard";
 import './App.css';
 import UploadLesson from "./pages/UploadLesson"; 
+import StudentPage from "./pages/StudentPage";
 
 // Simplified UploadPage component (removed from main App component)
 function UploadPage() {
@@ -389,7 +390,7 @@ function App() {
           path="/learner-dashboard"
           element={
             isAuthenticated && userRole === 'Learner' ? (
-              <LearnerDashboard onLogout={handleLogout} />
+              <StudentPage onLogout={handleLogout}/>
             ) : (
               <Navigate to="/login" replace />
             )
