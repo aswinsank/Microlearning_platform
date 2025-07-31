@@ -1,9 +1,9 @@
 // UploadPage.jsx
 import React, { useState } from "react";
 import axios from "axios";
-//import "./App.css"; // You'll need to create this CSS file
+//import "./App.css"; 
 
-const UploadPage = () => {
+const Uploadpage = () => {
   const [activeTab, setActiveTab] = useState("video"); // Default to video
 
   return (
@@ -55,7 +55,7 @@ const VideoUpload = () => {
   const [tutorId, setTutorId] = useState("");
   const [message, setMessage] = useState("");
   const [previewUrl, setPreviewUrl] = useState(null);
-
+  
   const getYoutubeVideoId = (url) => {
     const regExp = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/i;
     const match = url.match(regExp);
@@ -246,7 +246,7 @@ const TextUpload = () => {
   const [tutorId, setTutorId] = useState("");
   const [message, setMessage] = useState("");
   const [previewContent, setPreviewContent] = useState(null);
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -431,6 +431,7 @@ const QuizUpload = () => {
   const [about, setAbout] = useState("");
   const [category, setCategory] = useState("");
   const [tutorId, setTutorId] = useState("");
+  
   const [questions, setQuestions] = useState([
     {
       question: "",
@@ -572,7 +573,6 @@ const QuizUpload = () => {
             required
           />
         </div>
-
         <div className="form-group">
           <label>Tutor ID</label>
           <input
@@ -583,7 +583,6 @@ const QuizUpload = () => {
             required
           />
         </div>
-
         <div className="form-group">
           <label>Category</label>
           <input
@@ -685,4 +684,4 @@ const QuizUpload = () => {
   );
 };
 
-export default UploadPage;
+export default Uploadpage;
