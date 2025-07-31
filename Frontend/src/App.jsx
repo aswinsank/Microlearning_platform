@@ -338,37 +338,51 @@ function App() {
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Check for authentication state on app load
+  // Check authentication status
+  const checkAuthStatus = () => {
     const storedUser = localStorage.getItem('user');
     const storedUserType = localStorage.getItem('userType');
     
+    console.log('Checking auth status:', { storedUser: !!storedUser, storedUserType });
+    
     if (storedUser && storedUserType) {
       try {
-        // Validate that stored user data is valid JSON
-        JSON.parse(storedUser);
+        const user = JSON.parse(storedUser);
+        console.log('User found in localStorage:', user);
         setIsAuthenticated(true);
         setUserRole(storedUserType);
+        return true;
       } catch (error) {
         console.error("Invalid stored user data:", error);
-        // Clear invalid data
         localStorage.removeItem('user');
         localStorage.removeItem('userType');
+        return false;
       }
     }
-    
+    return false;
+  };
+
+  useEffect(() => {
+    checkAuthStatus();
     setLoading(false);
   }, []);
 
   const handleAuthSuccess = (user, role) => {
-    console.log('Auth success:', { user, role });
+    console.log('Auth success called:', { user, role });
+    
+    // Update state immediately
     setIsAuthenticated(true);
     setUserRole(role);
+    
+    // Ensure localStorage is updated
     localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('userType', role);
+    
+    console.log('Auth state updated:', { isAuthenticated: true, userRole: role });
   };
 
   const handleLogout = () => {
+    console.log('Logging out...');
     setIsAuthenticated(false);
     setUserRole(null);
     localStorage.removeItem('user');
@@ -387,6 +401,8 @@ function App() {
     );
   }
 
+  console.log('App render - Auth state:', { isAuthenticated, userRole });
+
   return (
     <Router>
       <Routes>
@@ -398,11 +414,10 @@ function App() {
           path="/login"
           element={
             isAuthenticated ? (
-              userRole === 'Tutor' ? (
-                <Navigate to="/tutor-dashboard" replace />
-              ) : (
-                <Navigate to="/learner-dashboard" replace />
-              )
+              <Navigate 
+                to={userRole === 'Tutor' ? "/tutor-dashboard" : "/learner-dashboard"} 
+                replace 
+              />
             ) : (
               <AuthForm onAuthSuccess={handleAuthSuccess} />
             )
@@ -449,15 +464,13 @@ function App() {
         <Route
           path="*"
           element={
-            isAuthenticated ? (
-              userRole === 'Tutor' ? (
-                <Navigate to="/tutor-dashboard" replace />
-              ) : (
-                <Navigate to="/learner-dashboard" replace />
-              )
-            ) : (
-              <Navigate to="/login" replace />
-            )
+            <Navigate 
+              to={isAuthenticated 
+                ? (userRole === 'Tutor' ? "/tutor-dashboard" : "/learner-dashboard")
+                : "/login"
+              } 
+              replace 
+            />
           }
         />
       </Routes>

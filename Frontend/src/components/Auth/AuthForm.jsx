@@ -64,7 +64,22 @@ const AuthForm = ({ onAuthSuccess }) => {
       return;
     }
 
-    const apiUrl = 'http://127.0.0.1:8000/api/auth';
+    // Validation
+    if (!formData.username || !formData.password) {
+      setMessage('Username and password are required.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!isLogin && userType === 'Learner') {
+      if (!formData.name || !formData.email) {
+        setMessage('Name and email are required for registration.');
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    const apiUrl = 'http://127.0.0.1:8000/api';
 
     try {
       let response;
@@ -76,7 +91,7 @@ const AuthForm = ({ onAuthSuccess }) => {
           email_or_username: formData.username || formData.email,
           password: formData.password,
         };
-        endpoint = `${apiUrl}/login`;
+        endpoint = `${apiUrl}/auth/login`;
       } else {
         // Only allow Learner registration
         if (userType !== 'Learner') {
@@ -92,8 +107,11 @@ const AuthForm = ({ onAuthSuccess }) => {
           password: formData.password,
           user_type: userType,
         };
-        endpoint = `${apiUrl}/register`;
+        endpoint = `${apiUrl}/auth/register`;
       }
+
+      console.log('Sending request to:', endpoint);
+      console.log('Request data:', { ...dataToSend, password: '[REDACTED]' });
 
       response = await fetch(endpoint, {
         method: 'POST',
@@ -104,29 +122,44 @@ const AuthForm = ({ onAuthSuccess }) => {
       });
 
       const data = await response.json();
+      console.log('Server response:', response.status, data);
 
       if (response.ok) {
         if (isLogin && data.user) {
           console.log('Login successful:', data.user);
           const loggedInUserType = data.user.user_type || userType;
 
-          // Store user data in localStorage
+          // Store both token and user data in localStorage
+          localStorage.setItem('access_token', data.access_token);
           localStorage.setItem('user', JSON.stringify(data.user));
           localStorage.setItem('userType', loggedInUserType);
 
-          // Call the auth success callback
+          setMessage('Login successful! Redirecting...');
+
+          // Call the auth success callback to update App state
           if (onAuthSuccess) {
             onAuthSuccess(data.user, loggedInUserType);
           }
 
-          // Navigate based on user type
-          if (loggedInUserType === 'Tutor') {
-            navigate('/tutor-dashboard', { replace: true });
-          } else {
-            navigate('/learner-dashboard', { replace: true });
-          }
+          // Navigate with a small delay to ensure state updates
+          setTimeout(() => {
+            try {
+              if (loggedInUserType === 'Tutor') {
+                navigate('/tutor-dashboard', { replace: true });
+              } else {
+                navigate('/learner-dashboard', { replace: true });
+              }
+            } catch (navError) {
+              console.error('Navigation failed, using window.location:', navError);
+              // Fallback to window.location
+              if (loggedInUserType === 'Tutor') {
+                window.location.href = '/tutor-dashboard';
+              } else {
+                window.location.href = '/learner-dashboard';
+              }
+            }
+          }, 200);
 
-          setMessage('Login successful! Redirecting...');
         } else if (!isLogin) {
           // Registration successful (only for Learners)
           setMessage(data.message || 'Registration successful! You can now log in.');
@@ -137,14 +170,30 @@ const AuthForm = ({ onAuthSuccess }) => {
             password: '',
           });
           setIsLogin(true); // Switch to login mode
+        } else {
+          // Login but no user data
+          setMessage('Login failed: Invalid response from server.');
         }
       } else {
-        setMessage(data.detail || 'Something went wrong. Please check your credentials.');
-        console.error('Error:', data);
+        // Handle different error status codes
+        if (response.status === 401) {
+          setMessage('Invalid username/email or password.');
+        } else if (response.status === 400) {
+          setMessage(data.detail || 'Bad request. Please check your input.');
+        } else if (response.status >= 500) {
+          setMessage('Server error. Please try again later.');
+        } else {
+          setMessage(data.detail || 'Something went wrong. Please try again.');
+        }
+        console.error('Error response:', data);
       }
     } catch (error) {
       console.error('Network or unexpected error:', error);
-      setMessage('Could not connect to the server. Please try again later.');
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        setMessage('Could not connect to the server. Please check if the server is running.');
+      } else {
+        setMessage('An unexpected error occurred. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -160,6 +209,7 @@ const AuthForm = ({ onAuthSuccess }) => {
             type="button"
             className={userType === 'Learner' ? 'active' : ''}
             onClick={() => handleUserTypeChange('Learner')}
+            disabled={isLoading}
           >
             Student
           </button>
@@ -167,6 +217,7 @@ const AuthForm = ({ onAuthSuccess }) => {
             type="button"
             className={userType === 'Tutor' ? 'active' : ''}
             onClick={() => handleUserTypeChange('Tutor')}
+            disabled={isLoading}
           >
             Tutor
           </button>
@@ -176,7 +227,7 @@ const AuthForm = ({ onAuthSuccess }) => {
         {!isLogin && userType === 'Learner' && (
           <>
             <div className="form-group">
-              <label htmlFor="name">Name</label>
+              <label htmlFor="name">Full Name *</label>
               <input
                 type="text"
                 name="name"
@@ -185,10 +236,11 @@ const AuthForm = ({ onAuthSuccess }) => {
                 value={formData.name}
                 onChange={handleInputChange}
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="form-group">
-              <label htmlFor="email">Email ID</label>
+              <label htmlFor="email">Email Address *</label>
               <input
                 type="email"
                 name="email"
@@ -197,13 +249,14 @@ const AuthForm = ({ onAuthSuccess }) => {
                 value={formData.email}
                 onChange={handleInputChange}
                 required
+                disabled={isLoading}
               />
             </div>
           </>
         )}
 
         <div className="form-group">
-          <label htmlFor="username">Username</label>
+          <label htmlFor="username">Username *</label>
           <input
             type="text"
             name="username"
@@ -212,11 +265,12 @@ const AuthForm = ({ onAuthSuccess }) => {
             value={formData.username}
             onChange={handleInputChange}
             required
+            disabled={isLoading}
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">Password *</label>
           <input
             type="password"
             name="password"
@@ -225,13 +279,26 @@ const AuthForm = ({ onAuthSuccess }) => {
             value={formData.password}
             onChange={handleInputChange}
             required
+            disabled={isLoading}
+            minLength={6}
           />
         </div>
 
-        {message && <p className="auth-message">{message}</p>}
+        {message && (
+          <div className={`auth-message ${message.includes('successful') || message.includes('Redirecting') ? 'success' : 'error'}`}>
+            {message}
+          </div>
+        )}
 
         <button type="submit" className="submit-btn" disabled={isLoading}>
-          {isLoading ? (isLogin ? 'Logging in...' : 'Registering...') : (isLogin ? 'Login' : 'Create Account')}
+          {isLoading ? (
+            <span>
+              {isLogin ? 'Logging in...' : 'Creating account...'}
+              <span className="loading-spinner"></span>
+            </span>
+          ) : (
+            isLogin ? 'Login' : 'Create Account'
+          )}
         </button>
 
         {/* Only show the switch button for Learners or when in login mode */}
@@ -251,14 +318,18 @@ const AuthForm = ({ onAuthSuccess }) => {
 
         {/* Show info message for tutors */}
         {userType === 'Tutor' && (
-          <p className="info-message" style={{ 
+          <div className="info-message" style={{ 
             fontSize: '0.9em', 
             color: '#666', 
             textAlign: 'center', 
-            marginTop: '10px' 
+            marginTop: '10px',
+            padding: '8px',
+            backgroundColor: '#f0f8ff',
+            borderRadius: '4px',
+            border: '1px solid #ddd'
           }}>
-            Tutors can only log in. Contact an administrator for account creation.
-          </p>
+            📝 Tutors can only log in. Contact an administrator for account creation.
+          </div>
         )}
       </form>
     </div>

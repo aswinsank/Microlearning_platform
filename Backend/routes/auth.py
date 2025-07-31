@@ -22,6 +22,7 @@ class UserRegister(BaseModel):
     username: str
     email: EmailStr
     password: str
+    user_type: str = "Learner"  # Default to Learner
 
 class UserLogin(BaseModel):
     email_or_username: str
@@ -35,9 +36,16 @@ class TokenData(BaseModel):
     username: Optional[str] = None
 
 class User(BaseModel):
+    id: str
     name: str
     username: str
     email: str
+    user_type: str
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str
+    user: User
 
 # ----- JWT Utility Functions -----
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -74,9 +82,11 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
         raise credentials_exception
     
     return User(
+        id=str(user["_id"]),
         name=user["name"],
         username=user["username"],
-        email=user["email"]
+        email=user["email"],
+        user_type=user.get("user_type", "Learner")
     )
 
 def get_current_user(current_user: User = Depends(verify_token)):
@@ -103,14 +113,15 @@ async def register_user(user: UserRegister):
         "username": user.username,
         "email": user.email,
         "password": hashed_pw.decode("utf-8"),
+        "user_type": user.user_type,
         "created_at": datetime.utcnow()
     }
     
-    users_collection.insert_one(new_user)
-    return {"message": "User registered successfully"}
+    result = users_collection.insert_one(new_user)
+    return {"message": "User registered successfully", "user_id": str(result.inserted_id)}
 
 # ----- Login -----
-@router.post("/auth/login", response_model=Token)
+@router.post("/auth/login", response_model=LoginResponse)
 async def login_user(credentials: UserLogin):
     # Find user by email or username
     user = users_collection.find_one({
@@ -134,10 +145,20 @@ async def login_user(credentials: UserLogin):
         data={"sub": user["username"]}, expires_delta=access_token_expires
     )
     
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
+    # Create user object to return
+    user_data = User(
+        id=str(user["_id"]),
+        name=user["name"],
+        username=user["username"],
+        email=user["email"],
+        user_type=user.get("user_type", "Learner")
+    )
+    
+    return LoginResponse(
+        access_token=access_token,
+        token_type="bearer",
+        user=user_data
+    )
 
 # ----- Protected Routes Examples -----
 @router.get("/auth/me", response_model=User)
