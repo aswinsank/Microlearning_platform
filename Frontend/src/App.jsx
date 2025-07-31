@@ -19,9 +19,10 @@ function UploadPage() {
   const [previewUrl, setPreviewUrl] = useState(null);
 
   const getYoutubeVideoId = (url) => {
-    const regExp = /^.*(?:youtu.be\/|v=)([^#&?]*).*/;
+    // Corrected regex for YouTube video IDs
+    const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
     const match = url.match(regExp);
-    return match && match[1].length === 11 ? match[1] : null;
+    return match ? match[1] : null;
   };
 
   const handleSubmit = async (e) => {
@@ -58,7 +59,13 @@ function UploadPage() {
         setPreviewUrl(`http://localhost:8000${lesson.content_url}`);
       } else {
         const videoId = getYoutubeVideoId(lesson.content_url);
-        setPreviewUrl(`https://www.youtube.com/embed/${videoId}`);
+        if (videoId) {
+          // Standard YouTube embed URL
+          setPreviewUrl(`https://www.youtube.com/embed/${videoId}`);
+        } else {
+          setMessage("❌ Upload failed: Invalid YouTube URL provided by the server.");
+          setPreviewUrl(null);
+        }
       }
     } catch (err) {
       setMessage("❌ Upload failed: " + (err?.response?.data?.detail || err.message));
@@ -138,7 +145,7 @@ function UploadPage() {
                 type="url"
                 value={youtubeUrl}
                 onChange={(e) => setYoutubeUrl(e.target.value)}
-                placeholder="https://youtube.com/..."
+                placeholder="https://www.youtube.com/watch?v=your_video_id"
                 required
               />
             </>
@@ -151,7 +158,8 @@ function UploadPage() {
 
         {previewUrl && (
           <div className="video-preview">
-            {previewUrl.includes("youtube.com") || previewUrl.includes("youtu.be") ? (
+            {/* Check for standard YouTube embed URL pattern */}
+            {previewUrl.includes("youtube.com/embed/") ? (
               <iframe
                 width="100%"
                 height="315"
@@ -191,4 +199,4 @@ function App() {
   );
 }
 
-export default A
+export default App;
