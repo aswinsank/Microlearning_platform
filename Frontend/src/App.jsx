@@ -1,7 +1,9 @@
+// App.jsx
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import axios from "axios";
 import LoginPage from "./pages/LoginPage";
+import LandingPage from "./pages/LandingPage";
 import "./App.css";
 
 // Extract the upload component into a separate component
@@ -181,12 +183,12 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/upload" element={<UploadPage />} />
-        <Route path="/" element={<Navigate to="/upload" replace />} />
       </Routes>
     </Router>
   );
 }
 
-export default App;
+export default A
