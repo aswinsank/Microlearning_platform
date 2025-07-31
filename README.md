@@ -8,8 +8,6 @@ Database: MongoDB
 MicroLearn is a lightweight, role-based microlearning portal designed to make upskilling simple, modular, and engaging. Developed during the People10 Hackathon, the platform enables tutors to share short, focused lessons and learners to consume, track, and interact with personalized content in an intuitive interface.
 
 🚀 Key Features
-🔐 Role-Based Authentication
-JWT-secured login system supporting Tutor and Learner roles.
 
 🧑‍🏫 Tutor Module
 Upload lessons in multiple formats: Text, Video, Quiz.
