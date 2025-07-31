@@ -1,0 +1,22 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from routes import lessons
+from fastapi.staticfiles import StaticFiles
+import os
+
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Update later for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(lessons.router, prefix="/api")
+os.makedirs("uploaded_videos", exist_ok=True)
+
+# Serve uploaded videos
+app.mount("/uploaded_videos", StaticFiles(directory="uploaded_videos"), name="videos")
