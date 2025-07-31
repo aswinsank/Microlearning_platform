@@ -17,6 +17,7 @@ app.add_middleware(
 
 app.include_router(lessons.router, prefix="/api")
 os.makedirs("uploaded_videos", exist_ok=True)
+os.makedirs("uploaded_quiz", exist_ok=True)
 
-# Serve uploaded videos
 app.mount("/uploaded_videos", StaticFiles(directory="uploaded_videos"), name="videos")
+app.mount("/uploaded_quiz", StaticFiles(directory="uploaded_quiz"), name="quiz")
