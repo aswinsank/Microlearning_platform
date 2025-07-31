@@ -117,24 +117,11 @@ const LandingPage = () => {
       <section className="cta">
         <div className="container">
           <div className="cta-content">
-            <h2>Ready to Transform Your Learning Journey?</h2>
-            <p>Join our community of learners and tutors. Start with microlearning today!</p>
-            <div className="cta-options">
-              <div className="cta-option">
-                <h3>👨‍🎓 For Learners</h3>
-                <p>Access bite-sized lessons, track progress, compete on leaderboards</p>
-                <Link to="/login" className="btn btn-primary btn-large">
-                  Start Learning
-                </Link>
-              </div>
-              <div className="cta-option">
-                <h3>👨‍🏫 For Tutors</h3>
-                <p>Share your expertise through videos, text, and interactive quizzes</p>
-                <Link to="/login" className="btn btn-secondary btn-large">
-                  Start Teaching
-                </Link>
-              </div>
-            </div>
+            <h2>Ready to Start Teaching?</h2>
+            <p>Join thousands of educators sharing knowledge through video lessons</p>
+            <Link to="/login" className="btn btn-primary btn-large">
+              Start Uploading Now
+            </Link>
           </div>
         </div>
       </section>
