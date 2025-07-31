@@ -4,6 +4,7 @@ from uuid import uuid4
 from datetime import datetime
 import os
 import shutil
+from bson.binary import Binary
 from db import lessons_collection
 
 router = APIRouter()
@@ -16,7 +17,7 @@ async def upload_text_lesson(
     title: str = Form(...),
     description: str = Form(...),
     category: str = Form(...),
-    #tutor_id: str = Form(...),
+    tutor_id: str = Form(...),
     content_type: str = Form(...),  # "plain" or "file"
     text_content: Optional[str] = Form(None),
     text_file: Optional[UploadFile] = File(None)
@@ -35,6 +36,7 @@ async def upload_text_lesson(
 
         content_url = f"/uploaded_texts/{filename}"
         final_text_content = text_content.strip()
+        file_data = None  # No file data for plain text
 
     elif content_type == "file":
         if not text_file:
@@ -56,6 +58,10 @@ async def upload_text_lesson(
             shutil.copyfileobj(text_file.file, buffer)
 
         content_url = f"/uploaded_texts/{filename}"
+
+        # Read file content for DB storage
+        with open(file_path, "rb") as f:
+            file_data = Binary(f.read())
 
         if file_extension in ['.txt', '.md']:
             try:
@@ -82,7 +88,7 @@ async def upload_text_lesson(
         "text_content": final_text_content,
         "content_url": content_url,
         "category": category,
-        # "tutor_id": tutor_id,
+        "tutor_id": tutor_id,
         "created_at": created_at.isoformat()
     }
 
