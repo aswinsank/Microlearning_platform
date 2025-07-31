@@ -4,6 +4,7 @@ from uuid import uuid4
 from datetime import datetime
 import os
 import shutil
+from db import lessons_collection
 
 router = APIRouter()
 
@@ -53,6 +54,6 @@ async def upload_video_lesson(
         "created_at": created_at.isoformat()
     }
 
-    LESSONS_DB.append(lesson)
+    lessons_collection.insert_one(lesson)
 
     return {"message": "Video uploaded successfully", "lesson": lesson}
