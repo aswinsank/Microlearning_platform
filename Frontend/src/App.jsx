@@ -5,9 +5,8 @@ import axios from "axios";
 import AuthForm from "./components/Auth/AuthForm";
 import LandingPage from "./pages/LandingPage";
 import TutorDashboard from "./pages/TutorDashboard";
-import './App.css';
-import UploadLesson from "./pages/UploadLesson"; 
 import StudentPage from "./pages/StudentPage";
+import './App.css'; 
 
 // Simplified UploadPage component (removed from main App component)
 function UploadPage() {
@@ -25,9 +24,13 @@ function UploadPage() {
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      const user = JSON.parse(storedUser);
-      if (user.user_type === 'Tutor' && user.id) {
-        setTutorId(user.id);
+      try {
+        const user = JSON.parse(storedUser);
+        if (user.user_type === 'Tutor' && user.id) {
+          setTutorId(user.id);
+        }
+      } catch (error) {
+        console.error("Error parsing stored user data:", error);
       }
     }
   }, []);
@@ -324,15 +327,28 @@ function LearnerDashboard({ onLogout }) {
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check for authentication state on app load
     const storedUser = localStorage.getItem('user');
     const storedUserType = localStorage.getItem('userType');
+    
     if (storedUser && storedUserType) {
-      setIsAuthenticated(true);
-      setUserRole(storedUserType);
+      try {
+        // Validate that stored user data is valid JSON
+        JSON.parse(storedUser);
+        setIsAuthenticated(true);
+        setUserRole(storedUserType);
+      } catch (error) {
+        console.error("Invalid stored user data:", error);
+        // Clear invalid data
+        localStorage.removeItem('user');
+        localStorage.removeItem('userType');
+      }
     }
+    
+    setLoading(false);
   }, []);
 
   const handleAuthSuccess = (user, role) => {
@@ -350,12 +366,23 @@ function App() {
     localStorage.removeItem('userType');
   };
 
+  // Show loading spinner while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/upload" element={<UploadLesson />} />
         
         {/* Login route */}
         <Route
@@ -390,7 +417,7 @@ function App() {
           path="/learner-dashboard"
           element={
             isAuthenticated && userRole === 'Learner' ? (
-              <StudentPage onLogout={handleLogout}/>
+              <StudentPage onLogout={handleLogout} />
             ) : (
               <Navigate to="/login" replace />
             )
