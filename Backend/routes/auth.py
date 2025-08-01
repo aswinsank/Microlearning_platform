@@ -129,30 +129,3 @@ async def tutors_page():
         return {"tutors": tutors_from_db}
     else:
         return {"message": "No tutors found."}
-
-# Example of a learner-only endpoint
-@router.get("/my-courses", dependencies=[Depends(role_required(["learner"]))])
-async def my_courses_page(payload: dict = Depends(get_current_user_payload)):
-    username = payload.get("sub")
-    # In a real app, you'd fetch courses specific to this learner
-    return {"message": f"Welcome, {username}! Here are your enrolled courses."}
-
-# Example of an admin-only endpoint
-@router.post("/admin/assign-role", dependencies=[Depends(role_required(["admin"]))])
-async def assign_role(username: str, new_role: str):
-    # In a real app, you'd want more robust validation for `new_role`
-    valid_roles = ["learner", "tutor", "admin"]
-    if new_role not in valid_roles:
-        raise HTTPException(status_code=400, detail="Invalid role specified.")
-
-    result = users_collection.update_one(
-        {"username": username},
-        {"$set": {"role": new_role}}
-    )
-
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="User not found.")
-    if result.modified_count == 0:
-        return {"message": f"User '{username}' already has the role '{new_role}'."}
-
-    return {"message": f"Successfully updated role for '{username}' to '{new_role}'."}
