@@ -6,7 +6,7 @@ import bcrypt
 import jwt
 from dotenv import load_dotenv
 
-from db import users_collection  # Make sure this is a working PyMongo collection
+from db import users_collection  # Ensure this is your PyMongo collection
 
 # ---------- Load settings ----------
 load_dotenv()
@@ -102,5 +102,13 @@ async def login_user(credentials: UserLogin):
 # ---------- Protected Tutors Page ----------
 @router.get("/tutors")
 async def tutors_page(current_user: str = Depends(get_current_user)):
-    return {"message": f"Welcome, {current_user}! Here are the tutors ..."}
-
+    # List of tutor usernames
+    tutor_usernames = ["tutor123", "tutor234"]
+    tutors = [
+        {"tutor123": "tutor123"},
+        {"tutor234": "tutor234"},
+    ]
+    if current_user in tutor_usernames:
+        return {"tutors": tutors}
+    else:
+        return {"message": "Incorrect: You are not a tutor."}
