@@ -1,4 +1,5 @@
 # Logs
+.bolt
 logs
 *.log
 npm-debug.log*
